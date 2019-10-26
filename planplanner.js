@@ -53,8 +53,21 @@ const NUM_PEOPLE = 2;
     );
     await peopleSelector.click();
     const personsList = await driver.findElements(By.css('#personList > li'));
-    // Select one person
+
+    // Save the price prior to changing # of people
+    const beforePrice = await getPrice(driver);
+
+    // Select number of people
     await personsList[NUM_PEOPLE - 1].click();
+
+    // Wait for the AJAX price calculator to finish
+    await driver.wait(async () => {
+      return beforePrice !== (await getPrice(driver));
+    }, 8500);
+
+    const afterPrice = await getPrice(driver);
+
+    console.log('priceTag: ', afterPrice);
 
     // const peopleSelector = await driver.findElement(By.css('.peopleQty'));
     // await peopleSelector.click();
@@ -63,3 +76,10 @@ const NUM_PEOPLE = 2;
     console.error('Error: ', e);
   }
 })();
+
+const getPrice = async driver => {
+  const price = await driver
+    .findElement(By.css('#bkap_price > span:nth-child(1)'))
+    .getText();
+  return price.substring(0, price.length - 1);
+};
