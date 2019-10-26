@@ -54,6 +54,8 @@ const NUM_PEOPLE = 2;
     );
     await peopleSelector.click();
 
+    // I thought the previous driver.wait would be enough, but sometimes it
+    // still produced empty person lists... Added this for good measure
     await driver.wait(async () => {
       return (await driver.findElements(By.css('#personList > li'))).length > 0;
     }, 8500);
@@ -73,9 +75,9 @@ const NUM_PEOPLE = 2;
     const afterPrice = await getPrice(driver);
 
     // Check that the value is what we expect
-    console.log('afterPrice: ', afterPrice);
-    console.log('PLAN_PRICE * NUM_PEOPLE: ', PLAN_PRICE * NUM_PEOPLE);
-    assert(parseFloat(afterPrice) === PLAN_PRICE * NUM_PEOPLE);
+    assert(
+      parseFloat(afterPrice.replace(/,/, '.')) === PLAN_PRICE * NUM_PEOPLE,
+    );
 
     // Go to next page
     await driver.findElement(By.css('.single_add_to_cart_button')).click();
