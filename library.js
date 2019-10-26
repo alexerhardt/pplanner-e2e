@@ -1,24 +1,33 @@
 const webdriver = require('selenium-webdriver');
 const By = webdriver.By;
 const until = webdriver.until;
+const { describe, it, after, before } = require('selenium-webdriver/testing');
+let driver;
 
-const driver = new webdriver.Builder().forBrowser('chrome').build();
-driver.get('http://library-app.firebaseapp.com');
-
-driver.findElement(By.css('input')).sendKeys('user@email.com');
-driver.findElement(By.css('.btn-lg')).click();
-driver.wait(until.elementLocated(By.css('.alert-success')), 5000);
-driver
-  .findElement(By.css('.alert-success'))
-  .getText()
-  .then(text => {
-    console.log('Alert succcess text is: ' + text);
+describe('Main test', () => {
+  beforeEach(() => {
+    driver = new webdriver.Builder().forBrowser('chrome').build();
+    driver.get('http://library-app.firebaseapp.com');
   });
 
-const submitBtn = driver.findElement(By.css('.btn-lg'));
-driver.wait(() => {
-  return submitBtn.isEnabled();
-}, 10000);
+  afterEach(() => {
+    driver.quit();
+  });
 
-driver.sleep(1000);
-driver.quit();
+  it('does something', () => {
+    driver.findElement(By.css('input')).sendKeys('user@email.com');
+    driver.findElement(By.css('.btn-lg')).click();
+    driver.wait(until.elementLocated(By.css('.alert-success')), 5000);
+    driver
+      .findElement(By.css('.alert-success'))
+      .getText()
+      .then(text => {
+        console.log('Alert succcess text is: ' + text);
+      });
+
+    const submitBtn = driver.findElement(By.css('.btn-lg'));
+    driver.wait(() => {
+      return submitBtn.isEnabled();
+    }, 10000);
+  });
+});
