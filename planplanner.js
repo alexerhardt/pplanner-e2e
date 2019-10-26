@@ -1,3 +1,4 @@
+const assert = require('assert');
 const { Builder, By, Key, until } = require('selenium-webdriver');
 
 // Example config
@@ -6,7 +7,7 @@ const { Builder, By, Key, until } = require('selenium-webdriver');
 const BASE_URL = 'https://planplanner.com';
 const PRODUCT_URL = '/madrid/karaoke-brunch-halloween/';
 const TICKET_TYPE = 2;
-const PLAN_PRICE = 24.99;
+const PLAN_PRICE = 29.99;
 const NUM_PEOPLE = 2;
 
 (async function example() {
@@ -52,6 +53,11 @@ const NUM_PEOPLE = 2;
       By.id('quantity_5db36bd58f814'),
     );
     await peopleSelector.click();
+
+    await driver.wait(async () => {
+      return (await driver.findElements(By.css('#personList > li'))).length > 0;
+    }, 8500);
+
     const personsList = await driver.findElements(By.css('#personList > li'));
 
     // Save the price prior to changing # of people
@@ -60,26 +66,28 @@ const NUM_PEOPLE = 2;
     // Select number of people
     await personsList[NUM_PEOPLE - 1].click();
 
-    // Wait for the AJAX price calculator to finish
+    // // Wait for the AJAX price calculator to finish
     await driver.wait(async () => {
       return beforePrice !== (await getPrice(driver));
     }, 8500);
-
     const afterPrice = await getPrice(driver);
 
-    console.log('priceTag: ', afterPrice);
+    // Check that the value is what we expect
+    console.log('afterPrice: ', afterPrice);
+    console.log('PLAN_PRICE * NUM_PEOPLE: ', PLAN_PRICE * NUM_PEOPLE);
+    assert(parseFloat(afterPrice) === PLAN_PRICE * NUM_PEOPLE);
 
-    // const peopleSelector = await driver.findElement(By.css('.peopleQty'));
-    // await peopleSelector.click();
-    // await ticketType.findElement(By.css('option:nth-child(3)')).click();
+    // Go to next page
+    await driver.findElement(By.css('.single_add_to_cart_button')).click();
   } catch (e) {
     console.error('Error: ', e);
   }
 })();
 
 const getPrice = async driver => {
-  const price = await driver
-    .findElement(By.css('#bkap_price > span:nth-child(1)'))
-    .getText();
+  const priceElement = await driver.findElement(
+    By.css('#bkap_price > span:nth-child(1)'),
+  );
+  const price = await priceElement.getText();
   return price.substring(0, price.length - 1);
 };
