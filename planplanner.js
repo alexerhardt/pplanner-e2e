@@ -10,8 +10,25 @@ const TICKET_TYPE = 2;
 const PLAN_PRICE = 29.99;
 const NUM_PEOPLE = 2;
 
+// Browserstack config
+const BROWSERSTACK_SERVER_URL = 'http://hub-cloud.browserstack.com/wd/hub';
+const capabilities = {
+  browserName: 'Firefox',
+  browser_version: '70.0',
+  os: 'OS X',
+  os_version: 'Mojave',
+  resolution: '1920x1080',
+  'browserstack.user': 'alexmoneybags1',
+  'browserstack.key': '2dLgbh1AsHbSvrmy4MHN',
+  name: 'Mozilla MacOS',
+  'browsestack.debug': 'true',
+};
+
 (async function example() {
-  let driver = await new Builder().forBrowser('firefox').build();
+  let driver = await new Builder()
+    .usingServer(BROWSERSTACK_SERVER_URL)
+    .withCapabilities(capabilities)
+    .build();
   try {
     await driver.get(BASE_URL + PRODUCT_URL);
 
@@ -83,6 +100,8 @@ const NUM_PEOPLE = 2;
     await driver.findElement(By.css('.single_add_to_cart_button')).click();
   } catch (e) {
     console.error('Error: ', e);
+  } finally {
+    driver.quit();
   }
 })();
 
