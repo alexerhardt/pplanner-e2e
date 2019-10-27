@@ -4,6 +4,7 @@ const { Builder, By, Key, until } = require('selenium-webdriver');
 // Example config
 // At larger scale, would need to find a way to write data for multiple plans
 // (JSON? YAML?)
+const TIMEOUT = 15000;
 const BASE_URL = 'https://planplanner.com';
 const PRODUCT_URL = '/madrid/karaoke-brunch-halloween/';
 const TICKET_TYPE = 2;
@@ -41,16 +42,16 @@ const NUM_PEOPLE = 2;
     // "Wait for the selector to not be disabled" -- looks very brittle
     await driver.wait(async () => {
       const peopleOptions = await driver.findElements(
-        By.css('#quantity_5db36bd58f814:not([disabled])'),
+        By.css('input[id^="quantity"]:not([disabled])'),
       );
       return peopleOptions.length === 1;
-    }, 8500);
+    }, TIMEOUT);
 
     /**
      * 3. CHOOSE NUMBER OF PEOPLE
      */
     const peopleSelector = await driver.findElement(
-      By.id('quantity_5db36bd58f814'),
+      By.css('input[id^="quantity"]'),
     );
     await peopleSelector.click();
 
@@ -58,7 +59,7 @@ const NUM_PEOPLE = 2;
     // still produced empty person lists... Added this for good measure
     await driver.wait(async () => {
       return (await driver.findElements(By.css('#personList > li'))).length > 0;
-    }, 8500);
+    }, TIMEOUT);
 
     const personsList = await driver.findElements(By.css('#personList > li'));
 
@@ -71,7 +72,7 @@ const NUM_PEOPLE = 2;
     // // Wait for the AJAX price calculator to finish
     await driver.wait(async () => {
       return beforePrice !== (await getPrice(driver));
-    }, 8500);
+    }, TIMEOUT);
     const afterPrice = await getPrice(driver);
 
     // Check that the value is what we expect
